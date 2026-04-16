@@ -40,6 +40,45 @@ const createNote = async (req, res) => {
   }
 };
 
+// 2. POST /api/notes/bulk — Create multiple notes
+const createBulkNotes = async (req, res) => {
+  try {
+    const { notes } = req.body;
+
+    if (!notes || !Array.isArray(notes) || notes.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Notes array is required and cannot be empty",
+        data: null,
+      });
+    }
+
+    const createdNotes = await Note.insertMany(notes, {
+      runValidators: true,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `${createdNotes.length} notes created successfully`,
+      data: createdNotes,
+    });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+        data: null,
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+};
+
 module.exports = {
   createNote,
+  createBulkNotes,
 };
