@@ -6,6 +6,7 @@ const {
   getAllNotes,
   getNoteById,
   replaceNote,
+  updateNote,
 } = require("../controllers/note.controller");
 
 // POST routes
@@ -18,5 +19,8 @@ router.get("/:id", getNoteById);
 
 // PUT route
 router.put("/:id", replaceNote);
+
+// PATCH route
+router.patch("/:id", updateNote);
 
 module.exports = router;
