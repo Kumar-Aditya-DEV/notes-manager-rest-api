@@ -7,6 +7,7 @@ const {
   getNoteById,
   replaceNote,
   updateNote,
+  deleteNote,
 } = require("../controllers/note.controller");
 
 // POST routes
@@ -22,5 +23,8 @@ router.put("/:id", replaceNote);
 
 // PATCH route
 router.patch("/:id", updateNote);
+
+// DELETE route
+router.delete("/:id", deleteNote);
 
 module.exports = router;
