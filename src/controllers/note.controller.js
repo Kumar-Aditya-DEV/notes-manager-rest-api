@@ -78,7 +78,56 @@ const createBulkNotes = async (req, res) => {
   }
 };
 
+// 3. GET /api/notes — Get all notes
+const getAllNotes = async (req, res) => {
+  try {
+    const { category, isPinned, search, sortBy, order, page = 1, limit = 10 } = req.query;
+
+    const query = {};
+
+    if (category) query.category = category;
+    if (isPinned !== undefined) query.isPinned = isPinned === "true";
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { content: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const sortField = sortBy || "createdAt";
+    const sortOrder = order === "asc" ? 1 : -1;
+    const sort = { [sortField]: sortOrder };
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const pageSize = parseInt(limit);
+
+    const notes = await Note.find(query).sort(sort).skip(skip).limit(pageSize);
+    const totalNotes = await Note.countDocuments(query);
+
+    return res.status(200).json({
+      success: true,
+      message: "Notes fetched successfully",
+      data: {
+        notes,
+        pagination: {
+          total: totalNotes,
+          page: parseInt(page),
+          limit: pageSize,
+          totalPages: Math.ceil(totalNotes / pageSize),
+        },
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+};
+
 module.exports = {
   createNote,
   createBulkNotes,
+  getAllNotes,
 };
